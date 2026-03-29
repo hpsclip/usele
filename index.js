@@ -1,4 +1,10 @@
 import 'dotenv/config';
+import { webcrypto } from 'node:crypto';
+import { ReadableStream } from 'node:stream/web';
+
+global.crypto = webcrypto;
+global.ReadableStream = ReadableStream;
+
 import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
 import { readdir } from 'fs/promises';
 import path from 'path';

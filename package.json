@@ -5,7 +5,7 @@
   "main": "index.js",
   "description": "Production multipurpose Discord bot: moderation, economy, music, automod, more!",
   "scripts": {
-    "start": "node index.js",
+    "start": "node start.js",
     "deploy": "node deploy-commands.js"
   },
   "dependencies": {

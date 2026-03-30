@@ -47,22 +47,45 @@ export async function execute(interaction, client) {
         modal.addComponents(row);
 
         await interaction.showModal(modal);
+      } else if (key === 'adminroles') {
+        const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = await import('discord.js');
+
+        const modal = new ModalBuilder()
+          .setCustomId('config_modal:adminroles')
+          .setTitle('Set Admin Roles');
+
+        const rolesInput = new TextInputBuilder()
+          .setCustomId('roles')
+          .setLabel('Role IDs or Mentions (up to 10, comma separated)')
+          .setStyle(TextInputStyle.Paragraph)
+          .setPlaceholder('<@&123>, <@&456>, 789...')
+          .setRequired(false);
+
+        const row = new ActionRowBuilder().addComponents(rolesInput);
+        modal.addComponents(row);
+
+        await interaction.showModal(modal);
       }
     }
   } else if (interaction.isModalSubmit()) {
     if (interaction.customId.startsWith('config_modal:')) {
       const key = interaction.customId.split(':')[1];
-      const channelValue = interaction.fields.getTextInputValue('channel');
       const { setGuildConfig } = await import('../utils/config.js');
 
-      // Extract channel ID from mention or ID
-      let channelId = channelValue.replace(/[<#>]/g, '');
-      if (!/^\d{17,19}$/.test(channelId)) {
-        return await interaction.reply({ content: 'Invalid channel ID or mention.', ephemeral: true });
+      if (key === 'logchannel' || key === 'welcomechannel') {
+        const channelValue = interaction.fields.getTextInputValue('channel');
+        let channelId = channelValue.replace(/[<#>]/g, '');
+        if (!/^\d{17,19}$/.test(channelId)) {
+          return await interaction.reply({ content: 'Invalid channel ID or mention.', ephemeral: true });
+        }
+        await setGuildConfig(interaction.guild.id, key === 'logchannel' ? 'logChannel' : 'welcomeChannel', channelId);
+        await interaction.reply({ content: `${key === 'logchannel' ? 'Log' : 'Welcome'} channel set to <#${channelId}>.`, ephemeral: true });
+      } else if (key === 'adminroles') {
+        const rolesValue = interaction.fields.getTextInputValue('roles');
+        const roleIds = rolesValue.split(',').map(r => r.trim().replace(/[<@&>]/g, '')).filter(id => /^\d{17,19}$/.test(id)).slice(0, 10);
+        await setGuildConfig(interaction.guild.id, 'adminRoles', roleIds);
+        await interaction.reply({ content: `Admin roles set: ${roleIds.map(id => `<@&${id}>`).join(', ') || 'None'}.`, ephemeral: true });
       }
-
-      await setGuildConfig(interaction.guild.id, key === 'logchannel' ? 'logChannel' : 'welcomeChannel', channelId);
-      await interaction.reply({ content: `${key === 'logchannel' ? 'Log' : 'Welcome'} channel set to <#${channelId}>.`, ephemeral: true });
     }
   }
 }

@@ -19,7 +19,8 @@ export async function execute(interaction) {
     fields: [
       { name: 'Automod', value: config.automod ? 'Enabled' : 'Disabled', inline: true },
       { name: 'Log Channel', value: config.logChannel ? `<#${config.logChannel}>` : 'Not set', inline: true },
-      { name: 'Welcome Channel', value: config.welcomeChannel ? `<#${config.welcomeChannel}>` : 'Not set', inline: true }
+      { name: 'Welcome Channel', value: config.welcomeChannel ? `<#${config.welcomeChannel}>` : 'Not set', inline: true },
+      { name: 'Admin Roles', value: config.adminRoles && config.adminRoles.length > 0 ? config.adminRoles.map(id => `<@&${id}>`).join(', ') : 'None', inline: false }
     ]
   });
 

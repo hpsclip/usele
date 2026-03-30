@@ -20,11 +20,12 @@ export async function execute(interaction) {
     fields: [
       { name: 'Automod', value: config.automod ? '✅ Enabled' : '❌ Disabled', inline: true },
       { name: 'Log Channel', value: config.logChannel ? `<#${config.logChannel}>` : 'Not set', inline: true },
-      { name: 'Welcome Channel', value: config.welcomeChannel ? `<#${config.welcomeChannel}>` : 'Not set', inline: true }
+      { name: 'Welcome Channel', value: config.welcomeChannel ? `<#${config.welcomeChannel}>` : 'Not set', inline: true },
+      { name: 'Admin Roles', value: config.adminRoles && config.adminRoles.length > 0 ? config.adminRoles.map(id => `<@&${id}>`).join(', ') : 'None', inline: false }
     ]
   });
 
-  const row = new ActionRowBuilder()
+  const row1 = new ActionRowBuilder()
     .addComponents(
       new ButtonBuilder()
         .setCustomId('config:automod')
@@ -40,5 +41,13 @@ export async function execute(interaction) {
         .setStyle(ButtonStyle.Secondary)
     );
 
-  await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+  const row2 = new ActionRowBuilder()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId('config:adminroles')
+        .setLabel('Set Admin Roles')
+        .setStyle(ButtonStyle.Danger)
+    );
+
+  await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });
 }

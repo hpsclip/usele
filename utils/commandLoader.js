@@ -27,9 +27,12 @@ export async function loadCommands(client, reload = false) {
 
         if (command.data && command.execute) {
           client.commands.set(command.data.name, command);
+          console.log(`Loaded command: ${command.data.name}`);
         }
       }
     }
+
+    console.log(`Total commands loaded: ${client.commands.size}`);
   } catch (error) {
     console.error('Error loading commands:', error);
     throw error;

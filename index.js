@@ -6,9 +6,10 @@ global.crypto = webcrypto;
 global.ReadableStream = ReadableStream;
 
 import { Client, Collection, GatewayIntentBits, Partials } from 'discord.js';
+import { REST, Routes } from 'discord.js';
 import { readdir } from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,8 +53,52 @@ async function loadEvents() {
 await loadCommands(client);
 await loadEvents();
 
-client.once('ready', () => {
+async function registerCommands() {
+  const commands = [];
+  const commandsPath = path.join(__dirname, 'commands');
+
+  try {
+    const commandFiles = await readdir(commandsPath);
+    for (const file of commandFiles) {
+      if (file.endsWith('.js')) {
+        const filePath = path.join(commandsPath, file);
+        const fileUrl = pathToFileURL(filePath).href;
+        const command = await import(fileUrl);
+        if (command.data) {
+          commands.push(command.data.toJSON());
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error reading commands for registration:', error);
+    return;
+  }
+
+  const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
+
+  try {
+    console.log('Started refreshing application (/) commands.');
+    if (process.env.GUILD_ID) {
+      await rest.put(
+        Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
+        { body: commands },
+      );
+      console.log(`Successfully reloaded guild commands for GUILD_ID=${process.env.GUILD_ID}.`);
+    } else {
+      await rest.put(
+        Routes.applicationCommands(process.env.CLIENT_ID),
+        { body: commands },
+      );
+      console.log('Successfully reloaded global application commands.');
+    }
+  } catch (error) {
+    console.error('Failed to refresh commands:', error);
+  }
+}
+
+client.once('ready', async () => {
   console.log(`Logged in as ${client.user.tag}!`);
+  await registerCommands();
 });
 
 client.login(process.env.TOKEN);

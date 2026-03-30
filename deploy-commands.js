@@ -19,6 +19,7 @@ try {
       const command = await import(filePath);
       if (command.data) {
         commands.push(command.data.toJSON());
+        console.log(`Registered command: ${command.data.name}`);
       }
     }
   }
@@ -26,13 +27,7 @@ try {
   console.error('Error reading commands directory:', error);
 }
 
-const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
-
-try {
-  console.log('Started refreshing application (/) commands.');
-
-  if (process.env.GUILD_ID) {
-    await rest.put(
+console.log(`Total commands to register: ${commands.length}`);
       Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
       { body: commands },
     );

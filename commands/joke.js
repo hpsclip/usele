@@ -2,11 +2,16 @@ import { SlashCommandBuilder } from 'discord.js';
 import { createEmbed } from '../utils/embed.js';
 
 const jokes = [
-  "Why don't scientists trust atoms? Because they make up everything!",
-  "Why did the scarecrow win an award? Because he was outstanding in his field!",
-  "What do you call fake spaghetti? An impasta!",
-  "Why don't eggs tell jokes? They'd crack each other up!",
-  "What do you call a belt made out of watches? A waist of time!"
+  "Why did the developer go broke? Because he used up all his cache!",
+  "Why do programmers prefer dark mode? Because light attracts bugs!",
+  "What do you call a fake noodle? An impasta!",
+  "Why did the computer go to therapy? It had too many bytes of emotional baggage!",
+  "How do you organize a space party? You planet!",
+  "Why don't skeletons fight each other? They don't have the guts!",
+  "What did the ocean say to the beach? Nothing, it just waved!",
+  "Why was the math book sad? Because it had too many problems!",
+  "What do you call cheese that isn't yours? Nacho cheese!",
+  "Why did the scarecrow win an award? He was outstanding in his field!"
 ];
 
 export const data = new SlashCommandBuilder()

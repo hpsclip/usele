@@ -1,39 +1,44 @@
-import { SlashCommandBuilder, PermissionFlagsBits, ChannelType } from 'discord.js';
-import { setGuildConfig } from '../utils/config.js';
+import { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
+import { getGuildConfig } from '../utils/config.js';
+import { createEmbed } from '../utils/embed.js';
 
 export const data = new SlashCommandBuilder()
   .setName('setconfig')
-  .setDescription('Set server configuration')
-  .addStringOption(option =>
-    option.setName('key')
-      .setDescription('Configuration key')
-      .setRequired(true)
-      .addChoices(
-        { name: 'Automod', value: 'automod' },
-        { name: 'Log Channel', value: 'logChannel' },
-        { name: 'Welcome Channel', value: 'welcomeChannel' }
-      )
-  )
-  .addStringOption(option =>
-    option.setName('value')
-      .setDescription('Value for the key (true/false for automod, channel ID for channels)')
-      .setRequired(true)
-  )
+  .setDescription('Open server configuration menu')
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
 export async function execute(interaction) {
-  const key = interaction.options.getString('key');
-  let value = interaction.options.getString('value');
-
   if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
     return await interaction.reply({ content: 'You do not have permission to set config.', ephemeral: true });
   }
 
-  if (key === 'automod') {
-    value = value.toLowerCase() === 'true';
-  }
+  const config = await getGuildConfig(interaction.guild.id);
 
-  await setGuildConfig(interaction.guild.id, key, value);
+  const embed = createEmbed({
+    title: 'Server Configuration',
+    description: 'Click the buttons below to configure your server.',
+    fields: [
+      { name: 'Automod', value: config.automod ? '✅ Enabled' : '❌ Disabled', inline: true },
+      { name: 'Log Channel', value: config.logChannel ? `<#${config.logChannel}>` : 'Not set', inline: true },
+      { name: 'Welcome Channel', value: config.welcomeChannel ? `<#${config.welcomeChannel}>` : 'Not set', inline: true }
+    ]
+  });
 
-  await interaction.reply({ content: `Set ${key} to ${value}.`, ephemeral: true });
+  const row = new ActionRowBuilder()
+    .addComponents(
+      new ButtonBuilder()
+        .setCustomId('config:automod')
+        .setLabel('Toggle Automod')
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId('config:logchannel')
+        .setLabel('Set Log Channel')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId('config:welcomechannel')
+        .setLabel('Set Welcome Channel')
+        .setStyle(ButtonStyle.Secondary)
+    );
+
+  await interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
 }

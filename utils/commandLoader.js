@@ -6,6 +6,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export async function loadCommands(client, reload = false) {
+  if (!client || !client.commands) {
+    throw new Error('loadCommands requires a Discord client with client.commands initialized');
+  }
+
   const commandsPath = path.join(__dirname, '../commands');
 
   try {

@@ -49,7 +49,7 @@ async function loadEvents() {
   }
 }
 
-await loadCommands();
+await loadCommands(client);
 await loadEvents();
 
 client.once('ready', () => {

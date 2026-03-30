@@ -6,7 +6,7 @@ A production-ready Discord.js v14 multipurpose bot with moderation, economy, gam
 
 - **Moderation**: Ban, kick, timeout, clear, lock, unlock, warn, warnings, mute, unmute
 - **Info**: Ping, userinfo, serverinfo, avatar
-- **Economy**: Balance, daily, pay, givebucks, shop, buy, inventory
+- **Economy**: Balance, daily, pay, givebucks, shop, buy, inventory, addshopitem, removeshopitem
 - **Gambling**: Coinflip, slots, dice, roulette
 - **Leaderboards**: Leaderboard, leaderboardbucks
 - **Engagement**: 8ball, poll, qotd, remind, joke, ai

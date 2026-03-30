@@ -1,4 +1,5 @@
 import { getData, writeData } from './db.js';
+import { PermissionFlagsBits } from 'discord.js';
 
 export async function getGuildConfig(guildId) {
   const data = await getData();
@@ -7,7 +8,10 @@ export async function getGuildConfig(guildId) {
     automod: false,
     logChannel: null,
     welcomeChannel: null,
-    adminRoles: []
+    adminRoles: [],
+    modRoles: [],
+    mutedRole: null,
+    pollRole: null
   };
   return data.config[guildId];
 }
@@ -21,10 +25,22 @@ export async function setGuildConfig(guildId, key, value) {
 }
 
 export async function isAdmin(interaction) {
+  if (!interaction.guild || !interaction.member) return false;
+
   const config = await getGuildConfig(interaction.guild.id);
-  if (interaction.member.permissions.has('Administrator')) return true;
-  if (config.adminRoles && config.adminRoles.length > 0) {
-    return interaction.member.roles.cache.some(role => config.adminRoles.includes(role.id));
+
+  if (interaction.member.permissions?.has(PermissionFlagsBits.Administrator)) return true;
+  if (interaction.member.permissions?.has(PermissionFlagsBits.ManageGuild)) return true;
+
+  const memberRoles = interaction.member.roles?.cache?.map(r => r.id) || [];
+
+  if (config.adminRoles && config.adminRoles.length > 0 && memberRoles.some(roleId => config.adminRoles.includes(roleId))) {
+    return true;
   }
+
+  if (config.modRoles && config.modRoles.length > 0 && memberRoles.some(roleId => config.modRoles.includes(roleId))) {
+    return true;
+  }
+
   return false;
 }

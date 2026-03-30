@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits, ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
-import { getGuildConfig } from '../utils/config.js';
+import { getGuildConfig, setGuildConfig, isAdmin } from '../utils/config.js';
 import { createEmbed } from '../utils/embed.js';
 
 export const data = new SlashCommandBuilder()
@@ -8,7 +8,7 @@ export const data = new SlashCommandBuilder()
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
 export async function execute(interaction) {
-  if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+  if (!(interaction.member.permissions.has(PermissionFlagsBits.ManageGuild) || await isAdmin(interaction))) {
     return await interaction.reply({ content: 'You do not have permission to set config.', ephemeral: true });
   }
 
@@ -21,7 +21,10 @@ export async function execute(interaction) {
       { name: 'Automod', value: config.automod ? '✅ Enabled' : '❌ Disabled', inline: true },
       { name: 'Log Channel', value: config.logChannel ? `<#${config.logChannel}>` : 'Not set', inline: true },
       { name: 'Welcome Channel', value: config.welcomeChannel ? `<#${config.welcomeChannel}>` : 'Not set', inline: true },
-      { name: 'Admin Roles', value: config.adminRoles && config.adminRoles.length > 0 ? config.adminRoles.map(id => `<@&${id}>`).join(', ') : 'None', inline: false }
+      { name: 'Admin Roles', value: config.adminRoles && config.adminRoles.length > 0 ? config.adminRoles.map(id => `<@&${id}>`).join(', ') : 'None', inline: true },
+      { name: 'Mod Roles', value: config.modRoles && config.modRoles.length > 0 ? config.modRoles.map(id => `<@&${id}>`).join(', ') : 'None', inline: true },
+      { name: 'Muted Role', value: config.mutedRole ? `<@&${config.mutedRole}>` : 'Not set', inline: true },
+      { name: 'Poll Role', value: config.pollRole ? `<@&${config.pollRole}>` : 'Not set', inline: true }
     ]
   });
 
@@ -46,7 +49,19 @@ export async function execute(interaction) {
       new ButtonBuilder()
         .setCustomId('config:adminroles')
         .setLabel('Set Admin Roles')
-        .setStyle(ButtonStyle.Danger)
+        .setStyle(ButtonStyle.Danger),
+      new ButtonBuilder()
+        .setCustomId('config:modroles')
+        .setLabel('Set Mod Roles')
+        .setStyle(ButtonStyle.Primary),
+      new ButtonBuilder()
+        .setCustomId('config:mutedrole')
+        .setLabel('Set Muted Role')
+        .setStyle(ButtonStyle.Secondary),
+      new ButtonBuilder()
+        .setCustomId('config:pollrole')
+        .setLabel('Set Poll Role')
+        .setStyle(ButtonStyle.Secondary)
     );
 
   await interaction.reply({ embeds: [embed], components: [row1, row2], ephemeral: true });

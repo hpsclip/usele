@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from 'discord.js';
-import { getGuildConfig } from '../utils/config.js';
+import { getGuildConfig, isAdmin } from '../utils/config.js';
 import { createEmbed } from '../utils/embed.js';
 
 export const data = new SlashCommandBuilder()
@@ -8,7 +8,7 @@ export const data = new SlashCommandBuilder()
   .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild);
 
 export async function execute(interaction) {
-  if (!interaction.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+  if (!(interaction.member.permissions.has(PermissionFlagsBits.ManageGuild) || await isAdmin(interaction))) {
     return await interaction.reply({ content: 'You do not have permission to view config.', ephemeral: true });
   }
 

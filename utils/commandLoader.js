@@ -1,6 +1,6 @@
 import { readdir } from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -22,7 +22,8 @@ export async function loadCommands(client, reload = false) {
     for (const file of commandFiles) {
       if (file.endsWith('.js')) {
         const filePath = path.join(commandsPath, file);
-        const command = await import(`${filePath}?update=${Date.now()}`);
+        const fileUrl = pathToFileURL(filePath).href;
+        const command = await import(fileUrl);
 
         if (command.data && command.execute) {
           client.commands.set(command.data.name, command);

@@ -5,7 +5,10 @@ export async function execute(interaction, client) {
 
   const command = client.commands.get(interaction.commandName);
 
-  if (!command) return;
+  if (!command) {
+    console.warn(`Command not found for interaction: ${interaction.commandName}`);
+    return interaction.reply({ content: 'Command is not available (not loaded or not registered).', ephemeral: true });
+  }
 
   try {
     await command.execute(interaction, client);

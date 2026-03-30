@@ -27,23 +27,7 @@ const client = new Client({
 
 client.commands = new Collection();
 
-async function loadCommands() {
-  const commandsPath = path.join(__dirname, 'commands');
-  try {
-    const commandFiles = await readdir(commandsPath);
-    for (const file of commandFiles) {
-      if (file.endsWith('.js')) {
-        const filePath = path.join(commandsPath, file);
-        const command = await import(filePath);
-        if (command.data && command.execute) {
-          client.commands.set(command.data.name, command);
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error loading commands:', error);
-  }
-}
+import { loadCommands } from './utils/commandLoader.js';
 
 async function loadEvents() {
   const eventsPath = path.join(__dirname, 'events');
